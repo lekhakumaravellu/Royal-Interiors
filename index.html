@@ -13,6 +13,49 @@
             --dark-color: #333;
         }
         
+        /* Loading Animation */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .loader-logo {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 10px solid var(--secondary-color);
+            border-radius: 50%;
+            border-top: 10px solid var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
         body {
             font-family: 'Playfair Display', serif;
             margin: 0;
@@ -33,10 +76,21 @@
             justify-content: center;
         }
         
-        .logo {
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        
+        .logo-img {
+            height: 60px;
+            margin-right: 15px;
+        }
+        
+        .logo-text {
             font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 1rem;
             color: var(--secondary-color);
         }
         
@@ -215,14 +269,32 @@
             .hero h1 {
                 font-size: 2.5rem;
             }
+            
+            .logo-container {
+                flex-direction: column;
+            }
+            
+            .logo-img {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <!-- Loading Animation -->
+    <div class="loader-container" id="loader">
+        <img src="logo.png" alt="Royal Interiors Logo" class="loader-logo">
+        <div class="loader"></div>
+    </div>
+
     <header>
-        <div class="logo">Royal Interiors</div>
+        <div class="logo-container">
+            <img src="logo.png" alt="Royal Interiors Logo" class="logo-img">
+            <div class="logo-text">Royal Interiors</div>
+        </div>
         <nav>
             <a href="#about">About</a>
             <a href="#services">Services</a>
@@ -292,7 +364,7 @@
     <footer>
         <div class="footer-content">
             <div class="footer-column">
-                <h3>Royal Interiors</h3>
+                <img src="logo.png" alt="Royal Interiors Logo" style="height: 80px; margin-bottom: 15px;">
                 <p>Crafting exceptional spaces for discerning clients since 1995.</p>
                 <div class="social-links">
                     <a href="#"><i class="fab fa-instagram"></i></a>
@@ -324,6 +396,17 @@
     </footer>
 
     <script>
+        // Show loading animation while page is loading
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const loader = document.getElementById('loader');
+                loader.style.opacity = '0';
+                setTimeout(function() {
+                    loader.style.display = 'none';
+                }, 500);
+            }, 1500); // Simulate loading time (remove in production)
+        });
+
         // This would be replaced with actual API calls in production
         document.addEventListener('DOMContentLoaded', function() {
             // Sample leadership data (would come from your database)
