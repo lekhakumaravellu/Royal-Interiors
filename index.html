@@ -192,12 +192,19 @@
         .testimonials {
             background: var(--light-color);
             padding: 4rem 0;
+            overflow: hidden;
         }
         
-        .testimonial-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+        .testimonial-wrapper {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .testimonial-track {
+            display: flex;
+            transition: transform 0.5s ease;
+            will-change: transform;
         }
         
         .testimonial-card {
@@ -205,6 +212,15 @@
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            min-width: 300px;
+            flex: 0 0 calc(33.333% - 2rem);
+            margin: 0 1rem;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+        
+        .testimonial-card.active {
+            opacity: 1;
         }
         
         .testimonial-text {
@@ -224,6 +240,26 @@
         .stars {
             color: var(--secondary-color);
             margin: 0.5rem 0;
+        }
+        
+        .testimonial-nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .testimonial-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ccc;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .testimonial-dot.active {
+            background: var(--secondary-color);
         }
         
         footer {
@@ -277,6 +313,10 @@
             .logo-img {
                 margin-right: 0;
                 margin-bottom: 10px;
+            }
+            
+            .testimonial-card {
+                flex: 0 0 calc(100% - 2rem);
             }
         }
     </style>
@@ -332,21 +372,12 @@
     <section class="testimonials">
         <div class="container">
             <h2>Royal Testimonials</h2>
-            <div class="testimonial-grid" id="testimonials-container">
-                <!-- Dynamic content will be inserted here by JavaScript -->
-                <div class="testimonial-card">
-                    <div class="stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="testimonial-text">
-                        "Royal Interiors transformed our palace into a modern yet timeless masterpiece."
-                    </div>
-                    <div class="testimonial-author">Sheikh Ahmed Al-Farsi</div>
-                    <div class="testimonial-role">Royal Client</div>
+            <div class="testimonial-wrapper">
+                <div class="testimonial-track" id="testimonial-track">
+                    <!-- Testimonials will be inserted here by JavaScript -->
+                </div>
+                <div class="testimonial-nav" id="testimonial-nav">
+                    <!-- Navigation dots will be inserted here by JavaScript -->
                 </div>
             </div>
         </div>
@@ -469,6 +500,18 @@
                     role: "Commercial Client",
                     content: "Our luxury hotel chain has benefited immensely from Royal Interiors' expertise.",
                     rating: 4
+                },
+                {
+                    author: "Princess Isabella",
+                    role: "Royal Client",
+                    content: "The most exquisite interior design work I've ever seen. Truly fit for royalty.",
+                    rating: 5
+                },
+                {
+                    author: "David Rockefeller",
+                    role: "Private Client",
+                    content: "Exceptional service from start to finish. They understood my vision perfectly.",
+                    rating: 5
                 }
             ];
 
@@ -489,24 +532,83 @@
                 `;
             });
 
-            // Render testimonials
-            const testimonialsContainer = document.getElementById('testimonials-container');
-            testimonialsContainer.innerHTML = ''; // Clear placeholder
+            // Render testimonials carousel
+            const testimonialTrack = document.getElementById('testimonial-track');
+            const testimonialNav = document.getElementById('testimonial-nav');
             
-            testimonialsData.forEach(testimonial => {
+            testimonialsData.forEach((testimonial, index) => {
                 let stars = '';
                 for (let i = 0; i < testimonial.rating; i++) {
                     stars += '<i class="fas fa-star"></i>';
                 }
                 
-                testimonialsContainer.innerHTML += `
-                    <div class="testimonial-card">
+                // Create testimonial card
+                testimonialTrack.innerHTML += `
+                    <div class="testimonial-card ${index === 0 ? 'active' : ''}">
                         <div class="stars">${stars}</div>
                         <div class="testimonial-text">"${testimonial.content}"</div>
                         <div class="testimonial-author">${testimonial.author}</div>
                         <div class="testimonial-role">${testimonial.role}</div>
                     </div>
                 `;
+                
+                // Create navigation dot
+                testimonialNav.innerHTML += `
+                    <div class="testimonial-dot ${index === 0 ? 'active' : ''}" data-index="${index}"></div>
+                `;
+            });
+
+            // Testimonial carousel functionality
+            let currentIndex = 0;
+            const testimonialCards = document.querySelectorAll('.testimonial-card');
+            const dots = document.querySelectorAll('.testimonial-dot');
+            const cardWidth = testimonialCards[0].offsetWidth + 32; // card width + margin
+            
+            function updateTestimonialPosition() {
+                testimonialTrack.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+                
+                // Update active states
+                testimonialCards.forEach((card, index) => {
+                    if (index === currentIndex) {
+                        card.classList.add('active');
+                    } else {
+                        card.classList.remove('active');
+                    }
+                });
+                
+                dots.forEach((dot, index) => {
+                    if (index === currentIndex) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Dot navigation
+            dots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    currentIndex = parseInt(this.getAttribute('data-index'));
+                    updateTestimonialPosition();
+                });
+            });
+            
+            // Auto-scroll functionality
+            let autoScroll = setInterval(() => {
+                currentIndex = (currentIndex + 1) % testimonialsData.length;
+                updateTestimonialPosition();
+            }, 5000); // Change testimonial every 5 seconds
+            
+            // Pause auto-scroll on hover
+            testimonialTrack.addEventListener('mouseenter', () => {
+                clearInterval(autoScroll);
+            });
+            
+            testimonialTrack.addEventListener('mouseleave', () => {
+                autoScroll = setInterval(() => {
+                    currentIndex = (currentIndex + 1) % testimonialsData.length;
+                    updateTestimonialPosition();
+                }, 5000);
             });
         });
     </script>
